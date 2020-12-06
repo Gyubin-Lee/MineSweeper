@@ -1,7 +1,7 @@
 #include <iostream>
-#include "inGameOption.h"
-#include "createGrid.h"
-#include "render.h"
+#include "inGameOptionChain.h"
+#include "createGridChain.h"
+#include "renderChain.h"
 
 using namespace std;
 
@@ -58,7 +58,7 @@ int main()
             cout << "Too many blocked squares!" << endl;
     } while (bSquares < 0 || bSquares >= rowSize * colSize - bombs);
 
-    Cell **grid = createGrid(rowSize, colSize, bombs, bSquares);
+    Cell ***grid = createGrid(rowSize, colSize, bombs, bSquares);
 
     cout << endl
          << "############" << endl;
@@ -70,10 +70,13 @@ int main()
     char act, exit;
     int currBombs = bombs;
     int currHints = hints;
+    int currMarks = 0;
     int result;
 
     //renderDebug(grid, rowSize, colSize);
     cout << endl;
+
+    renderAdj(grid, rowSize, colSize);
 
     while (1)
     {
@@ -122,10 +125,15 @@ int main()
             else if (act == 'm')
             {
                 if (mark(grid, row, col) == 1)
+                {
                     currBombs--;
-
+                    currMarks++;
+                }
                 else
+                {
+                    currMarks--;
                     currBombs++;
+                }
 
                 break;
             }
@@ -140,6 +148,7 @@ int main()
                     if (hint(grid, row, col, rowSize, colSize) == 1)
                     {
                         currBombs--;
+                        currMarks++;
                     };
                     currHints--;
                 }
@@ -149,7 +158,7 @@ int main()
                 cout << "Type o, m, or h" << endl;
         } while (1);
 
-        if (judge(grid, rowSize, colSize))
+        if (judge(grid, rowSize, colSize, currMarks, bombs))
         {
             cout << "Success!" << endl;
             break;
